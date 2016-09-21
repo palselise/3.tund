@@ -1,5 +1,9 @@
 <?php
 	
+	
+	//võtab ja kopeerib faili sisu
+	require("../../config.php");
+	
 	//var_dump($_GET);
 	//echo "<br>";
 	//var_dump($_POST);
@@ -78,6 +82,45 @@
 		} else {
 			$gender = $_POST["gender"];
 		}
+	}
+	
+	// kus tean et ühtegi viga ei olnud ja saan kasutaja andmed salvestada
+	
+	if ( isset($_POST["signupPassword"]) &&
+		isset($_POST["signupEmail"]) &&
+		empty($signupEmailError) &&
+		empty($signupPasswordError)
+		) {
+		
+		echo "Salvestan...<br>";
+		echo "email ".$signupEmail."<br>";
+		
+		$password = hash("sha512", $_POST["signupPassword"]);
+		
+		echo "parool ".$_POST["signupPassword"]."<br>";
+		echo "räsi ".$password."<br>";
+		
+		//echo $serverUsername;
+		
+		$database = "if16_epals";
+		$mysqli = new mysqli($serverHost,$serverUsername,$serverPassword,$database);
+		
+		//käsk
+		$stmt = $mysqli->prepare("INSERT INTO user_sample (email, password) VALUES (?, ?)");
+		
+		//asendan küsimärgid väärtustega
+		//iga muutuja kohta üks täht, mis tüüpi muutja on
+		// s - string
+		// i - integer
+		// d - double/float komakohaga arv
+		$stmt->bind_param("ss", $signupEmail, $password);
+		
+		if($stmt->execute()) {
+			echo "salvestamine õnnestus";
+		} else {
+			echo "ERROR".$stmt->error;
+		}
+		
 	}
 ?>
 
